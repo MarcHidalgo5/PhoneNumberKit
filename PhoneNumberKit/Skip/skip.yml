@@ -1,9 +1,6 @@
 skip:
   mode: native
   bridging: true
-  resources:
-    - path: "Resources"
-      mode: "copy"
 
 build:
   contents:

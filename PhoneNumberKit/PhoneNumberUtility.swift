@@ -361,12 +361,17 @@ public final class PhoneNumberUtility {
         #endif
 
         let frameworkBundle = Bundle.phoneNumberKit
-        guard
-            let jsonURL = frameworkBundle.url(forResource: "PhoneNumberMetadata", withExtension: "json") else {
-            throw PhoneNumberError.metadataNotFound
+        if let jsonURL = frameworkBundle.url(forResource: "PhoneNumberMetadata", withExtension: "json") {
+            return try Data(contentsOf: jsonURL)
         }
 
-        return try Data(contentsOf: jsonURL)
+        #if os(Android)
+        if let assetURL = URL(string: "asset:/PhoneNumberMetadata.json") {
+            return try Data(contentsOf: assetURL)
+        }
+        #endif
+
+        throw PhoneNumberError.metadataNotFound
     }
 }
 

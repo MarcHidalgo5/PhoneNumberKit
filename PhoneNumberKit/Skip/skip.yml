@@ -9,13 +9,8 @@ build:
   contents:
     - block: "android"
       contents:
-        - 'val syncSkipAssets by tasks.registering(Sync::class) {'
-        - '    from(layout.projectDirectory.file("src/main/swift/${project.name}/Resources/PhoneNumberMetadata.json"))'
-        - '    into(layout.buildDirectory.dir("generated/skip-assets/${project.name}/phone/number/kit/Resources"))'
-        - '}'
-        - 'tasks.named("preBuild").configure { dependsOn(syncSkipAssets) }'
         - block: "sourceSets"
           contents:
             - block: 'getByName("main")'
               contents:
-                - 'assets.srcDir(layout.buildDirectory.dir("generated/skip-assets/${project.name}"))'
+                - 'assets.srcDir(layout.projectDirectory.dir("src/main/swift/${project.name}/Resources"))'

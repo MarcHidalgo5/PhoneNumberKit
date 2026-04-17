@@ -25,13 +25,15 @@ let targetExcludes: [String] = [
     "Resources/Original",
     "Resources/README.md",
     "Resources/update_metadata.sh",
-    "Info.plist"
+    "Info.plist",
+    "Skip/skip.yml"
 ] + (skipBuildIsEnabled ? ["UI"] : [])
 
 let package = Package(
     name: "PhoneNumberKit",
     platforms: [
-        .iOS(skipBuildIsEnabled ? .v16 : .v12), .macOS(.v10_13), .tvOS(.v12), .watchOS(.v4)
+        .iOS(.v16),
+        .macOS(.v14)
     ],
     products: [
         .library(name: "PhoneNumberKit", targets: ["PhoneNumberKit"]),

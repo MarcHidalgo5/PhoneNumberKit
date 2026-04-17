@@ -9,7 +9,35 @@
 import Foundation
 
 /// Represents metadata for a specific geographical territory used in phone number parsing.
+// SKIP @nobridge
 public struct MetadataTerritory: Decodable {
+    enum CodingKeys: String, CodingKey {
+        case codeID = "id"
+        case countryCode
+        case internationalPrefix
+        case mainCountryForCode
+        case nationalPrefix
+        case nationalPrefixFormattingRule
+        case nationalPrefixForParsing
+        case nationalPrefixTransformRule
+        case preferredExtnPrefix
+        case emergency
+        case fixedLine
+        case generalDesc
+        case mobile
+        case pager
+        case personalNumber
+        case premiumRate
+        case sharedCost
+        case tollFree
+        case voicemail
+        case voip
+        case uan
+        case numberFormats = "numberFormat"
+        case leadingDigits
+        case availableFormats
+    }
+
     /// ISO 3166-compliant region code.
     public let codeID: String
     /// International dialing country code.
@@ -56,9 +84,45 @@ public struct MetadataTerritory: Decodable {
     public let numberFormats: [MetadataPhoneNumberFormat]
     /// Optional leading digits used to narrow down matching within the territory.
     public let leadingDigits: String?
+
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+
+        codeID = try container.decode(String.self, forKey: .codeID)
+        let code = try container.decode(String.self, forKey: .countryCode)
+        countryCode = UInt64(code)!
+        mainCountryForCode = container.decodeBoolString(forKey: .mainCountryForCode)
+        let possibleNationalPrefixForParsing: String? = try container.decodeIfPresent(String.self, forKey: .nationalPrefixForParsing)
+        let possibleNationalPrefix: String? = try container.decodeIfPresent(String.self, forKey: .nationalPrefix)
+        nationalPrefix = possibleNationalPrefix
+        let nationalPrefixForParsing = (possibleNationalPrefixForParsing == nil && possibleNationalPrefix != nil) ? nationalPrefix : possibleNationalPrefixForParsing
+        self.nationalPrefixForParsing = nationalPrefixForParsing?.replacingOccurrences(of: "\\", with: #"\\"#)
+        nationalPrefixFormattingRule = try container.decodeIfPresent(String.self, forKey: .nationalPrefixFormattingRule)
+        let availableFormats = try? container.nestedContainer(keyedBy: CodingKeys.self, forKey: .availableFormats)
+        let temporaryFormatList: [MetadataPhoneNumberFormat] = availableFormats?.decodeArrayOrObject(forKey: .numberFormats) ?? []
+        numberFormats = temporaryFormatList.withDefaultNationalPrefixFormattingRule(nationalPrefixFormattingRule)
+
+        internationalPrefix = try container.decodeIfPresent(String.self, forKey: .internationalPrefix)
+        nationalPrefixTransformRule = try container.decodeIfPresent(String.self, forKey: .nationalPrefixTransformRule)
+        preferredExtnPrefix = try container.decodeIfPresent(String.self, forKey: .preferredExtnPrefix)
+        emergency = try container.decodeIfPresent(MetadataPhoneNumberDesc.self, forKey: .emergency)
+        fixedLine = try container.decodeIfPresent(MetadataPhoneNumberDesc.self, forKey: .fixedLine)
+        generalDesc = try container.decodeIfPresent(MetadataPhoneNumberDesc.self, forKey: .generalDesc)
+        mobile = try container.decodeIfPresent(MetadataPhoneNumberDesc.self, forKey: .mobile)
+        pager = try container.decodeIfPresent(MetadataPhoneNumberDesc.self, forKey: .pager)
+        personalNumber = try container.decodeIfPresent(MetadataPhoneNumberDesc.self, forKey: .personalNumber)
+        premiumRate = try container.decodeIfPresent(MetadataPhoneNumberDesc.self, forKey: .premiumRate)
+        sharedCost = try container.decodeIfPresent(MetadataPhoneNumberDesc.self, forKey: .sharedCost)
+        tollFree = try container.decodeIfPresent(MetadataPhoneNumberDesc.self, forKey: .tollFree)
+        voicemail = try container.decodeIfPresent(MetadataPhoneNumberDesc.self, forKey: .voicemail)
+        voip = try container.decodeIfPresent(MetadataPhoneNumberDesc.self, forKey: .voip)
+        uan = try container.decodeIfPresent(MetadataPhoneNumberDesc.self, forKey: .uan)
+        leadingDigits = try container.decodeIfPresent(String.self, forKey: .leadingDigits)
+    }
 }
 
 /// Describes a specific type of phone number (e.g., mobile, fixed-line) using metadata.
+// SKIP @nobridge
 public struct MetadataPhoneNumberDesc: Decodable {
     /// Example number demonstrating a valid format for this type.
     public let exampleNumber: String?
@@ -71,6 +135,7 @@ public struct MetadataPhoneNumberDesc: Decodable {
 }
 
 /// Describes valid lengths for a phone number, either nationally or locally.
+// SKIP @nobridge
 public struct MetadataPossibleLengths: Decodable {
     /// Valid national number lengths (as a comma-separated string).
     let national: String?
@@ -79,7 +144,18 @@ public struct MetadataPossibleLengths: Decodable {
 }
 
 /// Describes how a phone number should be formatted within a specific context.
+// SKIP @nobridge
 public struct MetadataPhoneNumberFormat: Decodable {
+    enum CodingKeys: String, CodingKey {
+        case pattern
+        case format
+        case intlFormat
+        case leadingDigitsPatterns = "leadingDigits"
+        case nationalPrefixFormattingRule
+        case nationalPrefixOptionalWhenFormatting
+        case domesticCarrierCodeFormattingRule = "carrierCodeFormattingRule"
+    }
+
     /// Regular expression pattern that matches numbers this format applies to.
     public let pattern: String?
     /// Format string used to output the number.
@@ -94,9 +170,35 @@ public struct MetadataPhoneNumberFormat: Decodable {
     public let nationalPrefixOptionalWhenFormatting: Bool?
     /// Rule for formatting the domestic carrier code.
     public let domesticCarrierCodeFormattingRule: String?
+
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+
+        leadingDigitsPatterns = container.decodeArrayOrObject(forKey: .leadingDigitsPatterns)
+        nationalPrefixOptionalWhenFormatting = container.decodeBoolString(forKey: .nationalPrefixOptionalWhenFormatting)
+
+        pattern = try container.decodeIfPresent(String.self, forKey: .pattern)
+        format = try container.decodeIfPresent(String.self, forKey: .format)
+        intlFormat = try container.decodeIfPresent(String.self, forKey: .intlFormat)
+        nationalPrefixFormattingRule = try container.decodeIfPresent(String.self, forKey: .nationalPrefixFormattingRule)
+        domesticCarrierCodeFormattingRule = try container.decodeIfPresent(String.self, forKey: .domesticCarrierCodeFormattingRule)
+    }
 }
 
 /// Internal structure used for decoding metadata from bundled resources.
 struct PhoneNumberMetadata: Decodable {
+    enum CodingKeys: String, CodingKey {
+        case phoneNumberMetadata
+        case territories
+        case territory
+    }
+
     var territories: [MetadataTerritory]
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        let metadataObject = try container.nestedContainer(keyedBy: CodingKeys.self, forKey: .phoneNumberMetadata)
+        let territoryObject = try metadataObject.nestedContainer(keyedBy: CodingKeys.self, forKey: .territories)
+        territories = try territoryObject.decode([MetadataTerritory].self, forKey: .territory)
+    }
 }

@@ -24,6 +24,16 @@ public struct PhoneNumber: Sendable {
     public let type: PhoneNumberType
     /// The region identifier associated with the phone number (e.g., "US", "GB").
     public let regionID: String?
+
+    public init(numberString: String, countryCode: UInt64, leadingZero: Bool, nationalNumber: UInt64, numberExtension: String?, type: PhoneNumberType, regionID: String?) {
+        self.numberString = numberString
+        self.countryCode = countryCode
+        self.leadingZero = leadingZero
+        self.nationalNumber = nationalNumber
+        self.numberExtension = numberExtension
+        self.type = type
+        self.regionID = regionID
+    }
 }
 
 extension PhoneNumber: Equatable {
@@ -48,6 +58,7 @@ extension PhoneNumber: Hashable {
     }
 }
 
+// SKIP @nobridge
 public extension PhoneNumber {
     static func notPhoneNumber() -> PhoneNumber {
         return PhoneNumber(numberString: "", countryCode: 0, leadingZero: false, nationalNumber: 0, numberExtension: nil, type: .notParsed, regionID: nil)
@@ -59,12 +70,14 @@ public extension PhoneNumber {
 
     /// Get a callable URL from the number.
     /// - Returns: A callable URL.
+    // SKIP @nobridge
     var url: URL? {
         return URL(string: "tel://" + numberString)
     }
 }
 
 /// In past versions of PhoneNumberKit you were able to initialize a PhoneNumber object to parse a String. Please use a PhoneNumberUtility object's methods.
+// SKIP @nobridge
 public extension PhoneNumber {
     /// DEPRECATED.
     /// Parse a string into a phone number object using default region. Can throw.

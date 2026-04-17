@@ -31,18 +31,22 @@ public enum PhoneNumberEncodingStrategy {
 /// A closure that returns a ``PhoneNumberUtility`` instance.
 ///
 /// Used for customizing phone number parsing and formatting behavior during encoding and decoding.
+// SKIP @nobridge
 public typealias PhoneNumberUtilityProvider = () -> PhoneNumberUtility
 
+// SKIP @nobridge
 public enum PhoneNumberDecodingUtils {
     /// The default ``PhoneNumberUtility`` instance used for parsing when decoding, if needed.
     public static var defaultUtility: PhoneNumberUtilityProvider = { .init() }
 }
 
+// SKIP @nobridge
 public enum PhoneNumberEncodingUtils {
     /// The default ``PhoneNumberUtility`` instance used for formatting when encoding, if needed.
     public static var defaultUtility: PhoneNumberUtilityProvider = { .init() }
 }
 
+// SKIP @nobridge
 public extension JSONDecoder {
     /// The strategy used to decode a ``PhoneNumber`` value.
     var phoneNumberDecodingStrategy: PhoneNumberDecodingStrategy {
@@ -65,6 +69,7 @@ public extension JSONDecoder {
     }
 }
 
+// SKIP @nobridge
 public extension JSONEncoder {
     /// The strategy used to encode a ``PhoneNumber`` value.
     var phoneNumberEncodingStrategy: PhoneNumberEncodingStrategy {
@@ -141,6 +146,7 @@ extension PhoneNumber: Codable {
     }
 }
 
+// SKIP @nobridge
 public extension CodingUserInfoKey {
     /// A key used to specify the decoding strategy for ``PhoneNumber`` values.
     ///

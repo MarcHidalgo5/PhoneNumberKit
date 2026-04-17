@@ -44,8 +44,7 @@ let package = Package(
                 dependencies: targetDependencies,
                 exclude: targetExcludes,
                 resources: [
-                    .process("Resources/PhoneNumberMetadata.json"),
-                    .copy("Resources/PrivacyInfo.xcprivacy")
+                    .copy("Resources")
                 ],
                 plugins: targetPlugins),
         .testTarget(name: "PhoneNumberKitTests",

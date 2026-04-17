@@ -356,25 +356,17 @@ public final class PhoneNumberUtility {
 
             throw PhoneNumberError.metadataNotFound
         }
+
+        try? AssetURLProtocol.register()
         #endif
 
         let frameworkBundle = Bundle.phoneNumberKit
         guard
-            let jsonPath = frameworkBundle.path(forResource: "PhoneNumberMetadata", ofType: "json"),
-            let handle = FileHandle(forReadingAtPath: jsonPath) else {
+            let jsonURL = frameworkBundle.url(forResource: "PhoneNumberMetadata", withExtension: "json") else {
             throw PhoneNumberError.metadataNotFound
         }
 
-        defer {
-            if #available(iOS 13.0, macOS 10.15, macCatalyst 13.1, tvOS 13.0, watchOS 6.0, *) {
-                try? handle.close()
-            } else {
-                handle.closeFile()
-            }
-        }
-
-        let data = handle.readDataToEndOfFile()
-        return data
+        return try Data(contentsOf: jsonURL)
     }
 }
 

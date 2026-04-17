@@ -1,3 +1,16 @@
 skip:
   mode: native
   bridging: true
+  resources:
+    - path: "Resources"
+      mode: "copy"
+
+build:
+  contents:
+    - block: "android"
+      contents:
+        - block: "sourceSets"
+          contents:
+            - block: 'getByName("main")'
+              contents:
+                - 'assets.srcDir(layout.projectDirectory.dir("src/main/swift/Sources/${project.name}/Skip/Assets"))'

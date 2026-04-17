@@ -25,12 +25,8 @@ public final class PhoneNumberUtility {
 
     // MARK: Lifecycle
 
-    public convenience init() {
-        self.init(metadataCallback: Self.defaultMetadataCallback)
-    }
-
     // SKIP @nobridge
-    public init(metadataCallback: @escaping MetadataCallback) {
+    public init(metadataCallback: @escaping MetadataCallback = defaultMetadataCallback) {
         self.metadataManager = MetadataManager(metadataCallback: metadataCallback)
         self.parseManager = ParseManager(metadataManager: self.metadataManager, regexManager: self.regexManager)
     }

@@ -9,6 +9,7 @@
 import Foundation
 
 /// Represents metadata for a specific geographical territory used in phone number parsing.
+// SKIP @nobridge
 public struct MetadataTerritory: Decodable {
     /// ISO 3166-compliant region code.
     public let codeID: String
@@ -59,6 +60,7 @@ public struct MetadataTerritory: Decodable {
 }
 
 /// Describes a specific type of phone number (e.g., mobile, fixed-line) using metadata.
+// SKIP @nobridge
 public struct MetadataPhoneNumberDesc: Decodable {
     /// Example number demonstrating a valid format for this type.
     public let exampleNumber: String?
@@ -71,6 +73,7 @@ public struct MetadataPhoneNumberDesc: Decodable {
 }
 
 /// Describes valid lengths for a phone number, either nationally or locally.
+// SKIP @nobridge
 public struct MetadataPossibleLengths: Decodable {
     /// Valid national number lengths (as a comma-separated string).
     let national: String?
@@ -79,6 +82,7 @@ public struct MetadataPossibleLengths: Decodable {
 }
 
 /// Describes how a phone number should be formatted within a specific context.
+// SKIP @nobridge
 public struct MetadataPhoneNumberFormat: Decodable {
     /// Regular expression pattern that matches numbers this format applies to.
     public let pattern: String?

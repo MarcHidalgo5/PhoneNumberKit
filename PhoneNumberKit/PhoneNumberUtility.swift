@@ -7,10 +7,14 @@
 //
 
 import Foundation
+#if os(Android)
+import SkipAndroidBridge
+#endif
 #if canImport(Contacts)
 import Contacts
 #endif
 
+// SKIP @nobridge
 public typealias MetadataCallback = () throws -> Data?
 
 public final class PhoneNumberUtility {
@@ -21,6 +25,7 @@ public final class PhoneNumberUtility {
 
     // MARK: Lifecycle
 
+    // SKIP @nobridge
     public init(metadataCallback: @escaping MetadataCallback = defaultMetadataCallback) {
         self.metadataManager = MetadataManager(metadataCallback: metadataCallback)
         self.parseManager = ParseManager(metadataManager: self.metadataManager, regexManager: self.regexManager)
@@ -203,6 +208,7 @@ public final class PhoneNumberUtility {
     /// - parameter country: ISO 3166 compliant region code (e.g "GB" for the UK).
     ///
     /// - returns: A MetadataTerritory object, or nil if no metadata was found for the country code
+    // SKIP @nobridge
     public func metadata(for country: String) -> MetadataTerritory? {
         return self.metadataManager.filterTerritories(byCountry: country)
     }
@@ -210,6 +216,7 @@ public final class PhoneNumberUtility {
     /// Get an array of MetadataTerritory objects corresponding to a given country code.
     ///
     /// - parameter countryCode: international country code (e.g 44 for the UK)
+    // SKIP @nobridge
     public func metadata(forCode countryCode: UInt64) -> [MetadataTerritory]? {
         return self.metadataManager.filterTerritories(byCode: countryCode)
     }
@@ -325,24 +332,39 @@ public final class PhoneNumberUtility {
     /// Default metadata callback, reads metadata from PhoneNumberMetadata.json file in bundle
     ///
     /// - returns: an optional Data representation of the metadata.
+    // SKIP @nobridge
     public static func defaultMetadataCallback() throws -> Data? {
-        let frameworkBundle = Bundle.phoneNumberKit
-        guard
-            let jsonPath = frameworkBundle.path(forResource: "PhoneNumberMetadata", ofType: "json"),
-            let handle = FileHandle(forReadingAtPath: jsonPath) else {
+        #if os(Android)
+        if !isJNIInitialized {
+            let resourceDirectoryName = "PhoneNumberKit_PhoneNumberKit.resources"
+            let metadataFileName = "PhoneNumberMetadata.json"
+            let currentDirectoryURL = URL(fileURLWithPath: FileManager.default.currentDirectoryPath, isDirectory: true)
+            let executableDirectoryURL = URL(fileURLWithPath: CommandLine.arguments[0], isDirectory: false)
+                .deletingLastPathComponent()
+            let candidateURLs = [
+                currentDirectoryURL,
+                executableDirectoryURL
+            ].map { $0.appendingPathComponent(resourceDirectoryName).appendingPathComponent(metadataFileName) }
+
+            for candidateURL in candidateURLs where FileManager.default.fileExists(atPath: candidateURL.path) {
+                return try Data(contentsOf: candidateURL)
+            }
+
             throw PhoneNumberError.metadataNotFound
         }
 
-        defer {
-            if #available(iOS 13.0, macOS 10.15, macCatalyst 13.1, tvOS 13.0, watchOS 6.0, *) {
-                try? handle.close()
-            } else {
-                handle.closeFile()
-            }
+        try? AssetURLProtocol.register()
+        if let assetURL = URL(string: "asset:/PhoneNumberMetadata.json") {
+            return try Data(contentsOf: assetURL)
         }
-
-        let data = handle.readDataToEndOfFile()
-        return data
+        throw PhoneNumberError.metadataNotFound
+        #else
+        let frameworkBundle = Bundle.phoneNumberKit
+        guard let jsonURL = frameworkBundle.url(forResource: "PhoneNumberMetadata", withExtension: "json") else {
+            throw PhoneNumberError.metadataNotFound
+        }
+        return try Data(contentsOf: jsonURL)
+        #endif
     }
 }
 

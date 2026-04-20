@@ -10,6 +10,7 @@ import Foundation
 
 // MARK: - MetadataTerritory
 
+// SKIP @nobridge
 public extension MetadataTerritory {
     enum CodingKeys: String, CodingKey {
         case codeID = "id"
@@ -41,22 +42,20 @@ public extension MetadataTerritory {
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
 
-        // Custom parsing logic
         codeID = try container.decode(String.self, forKey: .codeID)
-        let code = try! container.decode(String.self, forKey: .countryCode)
+        let code = try container.decode(String.self, forKey: .countryCode)
         countryCode = UInt64(code)!
         mainCountryForCode = container.decodeBoolString(forKey: .mainCountryForCode)
         let possibleNationalPrefixForParsing: String? = try container.decodeIfPresent(String.self, forKey: .nationalPrefixForParsing)
         let possibleNationalPrefix: String? = try container.decodeIfPresent(String.self, forKey: .nationalPrefix)
         nationalPrefix = possibleNationalPrefix
         let nationalPrefixForParsing = (possibleNationalPrefixForParsing == nil && possibleNationalPrefix != nil) ? nationalPrefix : possibleNationalPrefixForParsing
-        self.nationalPrefixForParsing = nationalPrefixForParsing != nil ? nationalPrefixForParsing!.replacingOccurrences(of: "\\", with: #"\\"#) : nil
+        self.nationalPrefixForParsing = nationalPrefixForParsing?.replacingOccurrences(of: "\\", with: #"\\"#)
         nationalPrefixFormattingRule = try container.decodeIfPresent(String.self, forKey: .nationalPrefixFormattingRule)
         let availableFormats = try? container.nestedContainer(keyedBy: CodingKeys.self, forKey: .availableFormats)
-        let temporaryFormatList: [MetadataPhoneNumberFormat] = availableFormats?.decodeArrayOrObject(forKey: .numberFormats) ?? [MetadataPhoneNumberFormat]()
+        let temporaryFormatList: [MetadataPhoneNumberFormat] = availableFormats?.decodeArrayOrObject(forKey: .numberFormats) ?? []
         numberFormats = temporaryFormatList.withDefaultNationalPrefixFormattingRule(nationalPrefixFormattingRule)
 
-        // Default parsing logic
         internationalPrefix = try container.decodeIfPresent(String.self, forKey: .internationalPrefix)
         nationalPrefixTransformRule = try container.decodeIfPresent(String.self, forKey: .nationalPrefixTransformRule)
         preferredExtnPrefix = try container.decodeIfPresent(String.self, forKey: .preferredExtnPrefix)
@@ -78,6 +77,7 @@ public extension MetadataTerritory {
 
 // MARK: - MetadataPhoneNumberFormat
 
+// SKIP @nobridge
 public extension MetadataPhoneNumberFormat {
     enum CodingKeys: String, CodingKey {
         case pattern
@@ -92,11 +92,9 @@ public extension MetadataPhoneNumberFormat {
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
 
-        // Custom parsing logic
         leadingDigitsPatterns = container.decodeArrayOrObject(forKey: .leadingDigitsPatterns)
         nationalPrefixOptionalWhenFormatting = container.decodeBoolString(forKey: .nationalPrefixOptionalWhenFormatting)
 
-        // Default parsing logic
         pattern = try container.decodeIfPresent(String.self, forKey: .pattern)
         format = try container.decodeIfPresent(String.self, forKey: .format)
         intlFormat = try container.decodeIfPresent(String.self, forKey: .intlFormat)
@@ -107,6 +105,7 @@ public extension MetadataPhoneNumberFormat {
 
 // MARK: - PhoneNumberMetadata
 
+// SKIP @nobridge
 extension PhoneNumberMetadata {
     enum CodingKeys: String, CodingKey {
         case phoneNumberMetadata

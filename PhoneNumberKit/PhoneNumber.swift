@@ -48,6 +48,7 @@ extension PhoneNumber: Hashable {
     }
 }
 
+// SKIP @nobridge
 public extension PhoneNumber {
     static func notPhoneNumber() -> PhoneNumber {
         return PhoneNumber(numberString: "", countryCode: 0, leadingZero: false, nationalNumber: 0, numberExtension: nil, type: .notParsed, regionID: nil)
@@ -59,12 +60,14 @@ public extension PhoneNumber {
 
     /// Get a callable URL from the number.
     /// - Returns: A callable URL.
+    // SKIP @nobridge
     var url: URL? {
         return URL(string: "tel://" + numberString)
     }
 }
 
 /// In past versions of PhoneNumberKit you were able to initialize a PhoneNumber object to parse a String. Please use a PhoneNumberUtility object's methods.
+// SKIP @nobridge
 public extension PhoneNumber {
     /// DEPRECATED.
     /// Parse a string into a phone number object using default region. Can throw.
